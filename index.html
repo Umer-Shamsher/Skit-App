@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skit Application</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+      background-color: #f0f8ff;
+      color: #333;
+    }
+    h1, h2, h3 { color: #2e8b57; }
+    .section { display: none; margin: 20px 0; }
+    .active { display: block; }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      margin: 5px;
+    }
+    button:hover { background-color: #45a049; }
+    canvas { border: 1px solid #000; background-color: #fff; border-radius: 50%; }
+    .slide { display: none; }
+    .slide.active { display: block; }
+    #quizImage { max-width: 300px; margin: 10px; }
+    #timer { font-size: 24px; color: #ff4500; }
+    #selectedStudent, #taskOptions, #quizQuestion, #quizOptions { font-size: 18px; margin: 10px; }
+    @media (max-width: 600px) {
+      button { width: 100%; }
+      canvas { width: 200px; height: 200px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Home Screen -->
+  <div id="home" class="section active">
+    <h1>Skit Application</h1>
+    <button onclick="startDemo()">View Demo</button>
+    <button onclick="startGame()">Start Game</button>
+  </div>
+
+  <!-- Demo Section -->
+  <div id="demo" class="section">
+    <h2>Game Flow Demo</h2>
+    <div id="slides">
+      <div class="slide active">
+        <h3>Step 1: Introductions</h3>
+        <p>Contestants introduce themselves, and a student's name is pinned to each.</p>
+      </div>
+      <div class="slide">
+        <h3>Step 2: Seat Assignment</h3>
+        <p>The Audience Wheel picks a student to assign a seat to the contestant.</p>
+      </div>
+      <div class="slide">
+        <h3>Step 3: Game Begins</h3>
+        <p>After all seats are assigned, the game starts with three rounds.</p>
+      </div>
+      <div class="slide">
+        <h3>Step 4: Rounds & Polls</h3>
+        <p>In each round, a 40-second poll is held while a rapid quiz is played.</p>
+      </div>
+      <div class="slide">
+        <h3>Step 5: Eliminations</h3>
+        <p>The most and least voted contestants are eliminated.</p>
+      </div>
+      <div class="slide">
+        <h3>Step 6: Tasks</h3>
+        <p>Eliminated contestants reveal their status. Imposters get hard tasks, safe get easy ones.</p>
+      </div>
+      <div class="slide">
+        <h3>Step 7: Winner</h3>
+        <p>After three rounds, the remaining contestant wins!</p>
+      </div>
+    </div>
+    <button onclick="nextSlide()">Next</button>
+  </div>
+
+  <!-- Game Section -->
+  <div id="game" class="section">
+    <h2>Game</h2>
+    <div id="navigation">
+      <button onclick="switchSection('audienceWheel')">Audience Wheel</button>
+      <button onclick="switchSection('taskRoulette')">Task Roulette</button>
+      <button onclick="switchSection('rapidQuiz')">Rapid Quiz</button>
+      <button onclick="switchSection('home')">Back to Home</button>
+    </div>
+    <div id="audienceWheel" class="section active">
+      <h3>Audience Wheel</h3>
+      <canvas id="wheelCanvas" width="300" height="300"></canvas>
+      <p id="selectedStudent"></p>
+      <button onclick="drawStudent()">Draw Student</button>
+    </div>
+    <div id="taskRoulette" class="section">
+      <h3>Task Roulette</h3>
+      <button onclick="selectTaskCategory('easy')">Safe (Easy)</button>
+      <button onclick="selectTaskCategory('hard')">Imposter (Hard)</button>
+      <div id="taskOptions"></div>
+    </div>
+    <div id="rapidQuiz" class="section">
+      <h3>Rapid Fire Quiz</h3>
+      <img id="quizImage" src="" alt="Quiz Image">
+      <p id="quizQuestion"></p>
+      <div id="quizOptions"></div>
+      <p id="timer"></p>
+      <button onclick="revealAnswer()">Reveal Answer</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+  <script>
+    // Data
+    let students = [
+      "Fiza ghouri", "Komal", "Vaniza", "Rafey Mengal", "Kumail", "Mustafa", "Hadi", "Aleeshba", "Zaeema", "Areeba",
+      "Zahra", "Baneen", "Rohail", "Hunain", "Shayma", "Muneeb", "Noman", "Sabeen", "Fatima", "Areeba", "Sana",
+      "Alishba", "Tasbiha", "Suman", "Anoosha", "Bisma", "Zaid", "Arham Nadia", "Rasheed", "Suhaira Tanveer",
+      "Parvez Ali", "Hammad Uddin", "Hamza Anwar", "Abdul moiz", "M ali", "Fazal", "Wasil fadli", "Abdul Rafay Rauf",
+      "Asjad Taha", "Aazmir Qureshi", "Umer", "Touqeer Shahid", "Ammad Khan", "Anus"
+    ];
+    let easyTasks = [
+      { name: "One-Word Quiz", desc: "Say the French word for \"red, mango, Balloon\". (Dis le mot français pour \"rouge, mangue, Ballon\".)" },
+      { name: "Vocabulary Challenge", desc: "Name three animals in French. (Nomme trois animaux en français.)" },
+      { name: "Pronunciation Practice", desc: "Say the phrase \"Bonjour, comment ça va ?\" (Hello, how are you?)" },
+      { name: "Word Conjugation", desc: "Conjugate the verb \"être\" in the present tense. (Conjugue le verbe \"être\" au présent.)" },
+      { name: "Cultural Knowledge", desc: "Name a famous French landmark. (Nomme un monument français célèbre.)" },
+      { name: "Simple Translation", desc: "Translate \"I love Pakistan\" into French. (Traduis \"I love Pakistan\" en français.)" }
+    ];
+    let hardTasks = [
+      { name: "Tongue Twister", desc: "Say the tongue twister \"Trois tortues trottent\" three times. (Dis le virelangue \"Trois tortues trottent\" trois fois.)" },
+      { name: "Dumb Charade", desc: "Act out the sentence \"Je dors\" (I am sleeping). (Mime la phrase \"Je dors\".)" },
+      { name: "Famous Quote", desc: "Say any two dialogues in French. First tell them in their original language, then in French." }
+    ];
+    const categories = {
+      "Days of the Week": ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"],
+      "Months of the Year": ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"],
+      "Animal Names": ["chat", "chien", "oiseau", "poisson", "cheval", "éléphant"],
+      "Counting": ["un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix"],
+      "Body Parts": ["main", "œil", "nez", "bouche", "oreille", "pied", "tête", "bras"],
+      "Family Members": ["mère", "père", "frère et sœur"],
+      "Names of Places": ["magasin", "marché", "maison", "aéroport", "école", "hôpital", "parc", "restaurant"]
+    };
+    let quizQuestions = [
+      { category: "Days of the Week", image: "images/image1.png", question: "Quel jour est-ce? (What day is it?)", answer: "lundi" },
+      { category: "Days of the Week", image: "images/image2.png", question: "Quel jour de la semaine est souvent un jour de repos? (What day of the week is often a rest day?)", answer: "dimanche" },
+      { category: "Days of the Week", image: "images/image3.png", question: "Quel jour commence la semaine scolaire? (What day does the school week start?)", answer: "lundi" },
+      { category: "Days of the Week", image: "images/image4.png", question: "Quel jour est souvent jour de marché? (What day is often market day?)", answer: "samedi" },
+      { category: "Days of the Week", image: "images/image5.png", question: "Quel jour est au milieu de la semaine? (What day is in the middle of the week?)", answer: "mercredi" },
+      { category: "Days of the Week", image: "images/image6.png", question: "Quel jour précède le week-end? (What day comes before the weekend?)", answer: "vendredi" },
+      { category: "Days of the Week", image: "images/image7.png", question: "Quel jour est souvent réservé aux repas en famille? (What day is often for family meals?)", answer: "dimanche" },
+      { category: "Months of the Year", image: "images/image8.png", question: "Quel mois est souvent le plus froid? (What month is often the coldest?)", answer: "janvier" },
+      { category: "Months of the Year", image: "images/image9.png", question: "Quel mois est associé au printemps? (What month is associated with spring?)", answer: "mai" },
+      { category: "Months of the Year", image: "images/image10.png", question: "Quel mois est en automne? (What month is in autumn?)", answer: "octobre" },
+      { category: "Months of the Year", image: "images/image11.png", question: "Quel mois célèbre Noël? (What month celebrates Christmas?)", answer: "décembre" },
+      { category: "Animal Names", image: "images/image12.png", question: "Quel animal est-ce? (What animal is this?)", answer: "chat" },
+      { category: "Animal Names", image: "images/image13.png", question: "Quel animal est-ce? (What animal is this?)", answer: "chien" },
+      { category: "Animal Names", image: "images/image14.png", question: "Quel animal est-ce? (What animal is this?)", answer: "oiseau" },
+      { category: "Animal Names", image: "images/image15.png", question: "Quel animal est-ce? (What animal is this?)", answer: "poisson" },
+      { category: "Animal Names", image: "images/image16.png", question: "Quel animal est-ce? (What animal is this?)", answer: "cheval" },
+      { category: "Animal Names", image: "images/image17.png", question: "Quel animal est-ce? (What animal is this?)", answer: "éléphant" },
+      { category: "Counting", image: "images/image18.png", question: "Combien de pommes y a-t-il? (How many apples are there?)", answer: "trois" },
+      { category: "Counting", image: "images/image19.png", question: "Combien de voitures y a-t-il? (How many cars are there?)", answer: "cinq" },
+      { category: "Counting", image: "images/image20.png", question: "Combien de livres y a-t-il? (How many books are there?)", answer: "deux" },
+      { category: "Counting", image: "images/image21.png", question: "Combien de crayons y a-t-il? (How many pencils are there?)", answer: "quatre" },
+      { category: "Counting", image: "images/image22.png", question: "Combien de maisons y a-t-il? (How many houses are there?)", answer: "un" },
+      { category: "Counting", image: "images/image23.png", question: "Combien de fleurs y a-t-il? (How many flowers are there?)", answer: "six" },
+      { category: "Counting", image: "images/image24.png", question: "Combien d'étoiles y a-t-il? (How many stars are there?)", answer: "sept" },
+      { category: "Counting", image: "images/image25.png", question: "Combien de balles y a-t-il? (How many balls are there?)", answer: "huit" },
+      { category: "Counting", image: "images/image26.png", question: "Combien de chaises y a-t-il? (How many chairs are there?)", answer: "neuf" },
+      { category: "Counting", image: "images/image27.png", question: "Combien de doigts y a-t-il? (How many fingers are there?)", answer: "dix" },
+      { category: "Body Parts", image: "images/image28.png", question: "Quelle partie du corps est-ce? (What body part is this?)", answer: "main" },
+      { category: "Body Parts", image: "images/image29.png", question: "Quelle partie du corps est-ce? (What body part is this?)", answer: "œil" },
+      { category: "Body Parts", image: "images/image30.png", question: "Quelle partie du corps est-ce? (What body part is this?)", answer: "nez" },
+      { category: "Body Parts",    , image: "images/image31.png", question: "Quelle partie du corps est-ce? (What body part is this?)", answer: "bouche" },
+      { category: "Body Parts", image: "images/image32.png", question: "Quelle partie du corps est-ce? (What body part is this?)", answer: "oreille" },
+      { category: "Body Parts", image: "images/image33.png", question: "Quelle partie du corps est-ce? (What body part is this?)", answer: "pied" },
+      { category: "Body Parts", image: "images/image34.png", question: "Quelle partie du corps est-ce? (What body part is this?)", answer: "tête" },
+      { category: "Body Parts", image: "images/image35.png", question: "Quelle partie du corps est-ce? (What body part is this?)", answer: "bras" },
+      { category: "Family Members", image: "images/image36.png", question: "Qui est cette personne? (Who is this person?)", answer: "mère" },
+      { category: "Family Members", image: "images/image1.png", question: "Qui est cette personne? (Who is this person?)", answer: "père" },
+      { category: "Family Members", image: "images/image2.png", question: "Qui sont ces personnes? (Who are these people?)", answer: "frère et sœur" },
+      { category: "Names of Places", image: "images/image3.png", question: "Quel est cet endroit? (What is this place?)", answer: "magasin" },
+      { category: "Names of Places", image: "images/image4.png", question: "Quel est cet endroit? (What is this place?)", answer: "marché" },
+      { category: "Names of Places", image: "images/image5.png", question: "Quel est cet endroit? (What is this place?)", answer: "maison" },
+      { category: "Names of Places", image: "images/image6.png", question: "Quel est cet endroit? (What is this place?)", answer: "aéroport" },
+      { category: "Names of Places", image: "images/image7.png", question: "Quel est cet endroit? (What is this place?)", answer: "école" },
+      { category: "Names of Places", image: "images/image8.png", question: "Quel est cet endroit? (What is this place?)", answer: "hôpital" },
+      { category: "Names of Places", image: "images/image9.png", question: "Quel est cet endroit? (What is this place?)", answer: "parc" },
+      { category: "Names of Places", image: "images/image10.png", question: "Quel est cet endroit? (What is this place?)", answer: "restaurant" }
+    ];
+    let drawCount = 0;
+    let currentQuestion = null;
+    let timer = null;
+
+    // Demo Functions
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('#slides .slide');
+    function startDemo() {
+      document.getElementById('home').classList.remove('active');
+      document.getElementById('demo').classList.add('active');
+      showSlide(0);
+    }
+    function showSlide(index) {
+      slides.forEach((slide, i) => slide.classList.toggle('active', i === index));
+    }
+    function nextSlide() {
+      currentSlide = (currentSlide + 1) % slides.length;
+      showSlide(currentSlide);
+    }
+
+    // Game Functions
+    function startGame() {
+      document.getElementById('home').classList.remove('active');
+      document.getElementById('game').classList.add('active');
+      switchSection('audienceWheel');
+    }
+    function switchSection(sectionId) {
+      document.querySelectorAll('#game .section').forEach(section => section.classList.remove('active'));
+      document.getElementById(sectionId).classList.add('active');
+      if (sectionId === 'rapidQuiz' && !currentQuestion) loadQuizQuestion();
+    }
+
+    // Audience Wheel
+    const canvas = document.getElementById('wheelCanvas');
+    const ctx = canvas.getContext('2d');
+    function drawStudent() {
+      if (drawCount >= 6 || students.length === 0) {
+        document.getElementById('selectedStudent').innerText = "All draws completed or no students left!";
+        return;
+      }
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.beginPath();
+      ctx.arc(150, 150, 140, 0, Math.PI * 2); // Bowl
+      ctx.stroke();
+      ctx.font = "20px Arial";
+      ctx.fillText("Shuffling...", 100, 150);
+      setTimeout(() => {
+        const index = Math.floor(Math.random() * students.length);
+        const student = students.splice(index, 1)[0];
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillText(student, 100, 150);
+        document.getElementById('selectedStudent').innerText = `Selected: ${student}`;
+        confetti({ particleCount: 100, spread: 70 });
+        drawCount++;
+        setTimeout(() => switchSection('taskRoulette'), 2000);
+      }, 1000);
+    }
+
+    // Task Roulette
+    function selectTaskCategory(type) {
+      const tasks = type === 'easy' ? easyTasks : hardTasks;
+      if (tasks.length < 2) {
+        document.getElementById('taskOptions').innerText = `Not enough ${type} tasks left!`;
+        return;
+      }
+      const shuffled = shuffleArray([...tasks]);
+      const [task1, task2] = shuffled.slice(0, 2);
+      document.getElementById('taskOptions').innerHTML = `
+        <button onclick="assignTask('${type}', '${task1.name}')">${task1.name}</button>
+        <button onclick="assignTask('${type}', '${task2.name}')">${task2.name}</button>
+      `;
+    }
+    function assignTask(type, name) {
+      const tasks = type === 'easy' ? easyTasks : hardTasks;
+      const task = tasks.find(t => t.name === name);
+      document.getElementById('taskOptions').innerText = `${task.name}: ${task.desc}`;
+      tasks.splice(tasks.indexOf(task), 1);
+      setTimeout(() => switchSection('rapidQuiz'), 3000);
+    }
+
+    // Rapid Fire Quiz
+    function loadQuizQuestion() {
+      if (quizQuestions.length === 0) {
+        document.getElementById('quizQuestion').innerText = "No more questions!";
+        return;
+      }
+      currentQuestion = quizQuestions.splice(Math.floor(Math.random() * quizQuestions.length), 1)[0];
+      const wrongAnswer = categories[currentQuestion.category]
+        .filter(a => a !== currentQuestion.answer)[Math.floor(Math.random() * (categories[currentQuestion.category].length - 1))];
+      const options = shuffleArray([currentQuestion.answer, wrongAnswer]);
+      document.getElementById('quizImage').src = currentQuestion.image;
+      document.getElementById('quizQuestion').innerText = currentQuestion.question;
+      document.getElementById('quizOptions').innerHTML = options.map(opt => `<button onclick="checkAnswer('${opt}')">${opt}</button>`).join(' ');
+      startTimer();
+    }
+    function startTimer() {
+      let timeLeft = 40;
+      document.getElementById('timer').innerText = `Time left: ${timeLeft}s`;
+      clearInterval(timer);
+      timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').innerText = `Time left: ${timeLeft}s`;
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          document.getElementById('timer').innerText = "Time's Up!";
+          revealAnswer();
+        }
+      }, 1000);
+    }
+    function checkAnswer(selected) {
+      clearInterval(timer);
+      const feedback = selected === currentQuestion.answer ? "Correct!" : `Wrong! Correct answer: ${currentQuestion.answer}`;
+      document.getElementById('quizOptions').innerText = feedback;
+      setTimeout(loadQuizQuestion, 2000);
+    }
+    function revealAnswer() {
+      clearInterval(timer);
+      document.getElementById('quizOptions').innerText = `Correct answer: ${currentQuestion.answer}`;
+      setTimeout(loadQuizQuestion, 2000);
+    }
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+  </script>
+</body>
+</html>
