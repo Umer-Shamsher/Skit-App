@@ -1,134 +1,199 @@
-// Import necessary libraries
-import { useState, useEffect } from 'react';
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import Confetti from 'react-confetti';
-import { motion } from 'framer-motion';
-
-// Constants
-const students = [
-  "Fiza ghouri", "Komal", "Vaniza", "Rafey Mengal", "Kumail", "Mustafa", "Hadi", "Aleeshba",
-  "Zaeema", "Areeba", "Zahra", "Baneen", "Rohail", "Hunain", "Shayma", "Muneeb", "Noman",
-  "Sabeen", "Fatima", "Areeba", "Sana", "Alishba", "Tasbiha", "Suman", "Anoosha", "Bisma",
-  "Zaid", "Arham Nadia", "Rasheed", "Suhaira Tanveer", "Parvez Ali", "Hammad Uddin", "Hamza Anwar",
-  "Abdul moiz", "M ali", "Fazal", "Wasil fadli", "Abdul Rafay Rauf", "Asjad Taha", "Aazmir Qureshi",
-  "Umer", "Touqeer Shahid", "Ammad Khan", "Anus"
-];
-
-const hardTasks = [
-  { en: "Say the tongue twister 'Trois tortues trottent' three times.", fr: "Dis le virelangue 'Trois tortues trottent' trois fois." },
-  { en: "Act out the sentence 'Je dors' (I am sleeping).", fr: "Mime la phrase 'Je dors'." },
-  { en: "Say any two dialogues in French. First in original, then in French.", fr: "Dis deux répliques en français. D'abord en langue originale, puis en français." }
-];
-
-const easyTasks = [
-  { en: "Say the French word for 'red, mango, Balloon'.", fr: "Dis le mot français pour 'rouge, mangue, Ballon'." },
-  { en: "Name three animals in French.", fr: "Nomme trois animaux en français." },
-  { en: "Say the phrase 'Bonjour, comment ça va ?' (Hello, how are you?)", fr: "Dis la phrase 'Bonjour, comment ça va ?'" },
-  { en: "Conjugate the verb 'être' in the present tense.", fr: "Conjugue le verbe 'être' au présent." },
-  { en: "Name a famous French landmark.", fr: "Nomme un monument français célèbre." },
-  { en: "Translate 'I love Pakistan' into French.", fr: "Traduis 'I love Pakistan' en français." }
-];
-
-// Helper Functions
-const getRandomStudent = (usedStudents) => {
-  const available = students.filter(s => !usedStudents.includes(s));
-  return available[Math.floor(Math.random() * available.length)];
-};
-
-const getRandomTask = (type, usedTasks) => {
-  const pool = type === 'hard' ? hardTasks : easyTasks;
-  const available = pool.filter(t => !usedTasks.includes(t.en));
-  return available[Math.floor(Math.random() * available.length)];
-};
-
-export default function FrenchGameShow() {
-  const [section, setSection] = useState('demo');
-  const [usedStudents, setUsedStudents] = useState([]);
-  const [drawnStudent, setDrawnStudent] = useState(null);
-  const [confetti, setConfetti] = useState(false);
-  const [usedTasks, setUsedTasks] = useState([]);
-  const [currentTask, setCurrentTask] = useState(null);
-  const [taskType, setTaskType] = useState('easy');
-  const [timer, setTimer] = useState(40);
-
-  const spinStudent = () => {
-    const student = getRandomStudent(usedStudents);
-    setDrawnStudent(student);
-    setUsedStudents([...usedStudents, student]);
-    setConfetti(true);
-    setTimeout(() => setConfetti(false), 5000);
-  };
-
-  const assignTask = (type) => {
-    setTaskType(type);
-    const task = getRandomTask(type, usedTasks);
-    setCurrentTask(task);
-    setUsedTasks([...usedTasks, task.en]);
-  };
-
-  useEffect(() => {
-    let interval = null;
-    if (timer > 0) {
-      interval = setInterval(() => setTimer(t => t - 1), 1000);
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>French Game Skit</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #fffbe6;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
     }
-    return () => clearInterval(interval);
-  }, [timer]);
+    .section {
+      display: none;
+      padding: 2rem;
+      transition: all 0.5s ease-in-out;
+    }
+    .active {
+      display: block;
+    }
+    h1, h2, h3 {
+      color: #444;
+    }
+    .btn {
+      padding: 10px 20px;
+      background-color: #ffcc00;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 1rem 0;
+    }
+    .confetti {
+      animation: confetti 1s ease-in-out;
+    }
+    @keyframes confetti {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2) rotate(15deg); }
+      100% { transform: scale(1) rotate(0); }
+    }
+    .ball-jar {
+      display: flex;
+      flex-wrap: wrap;
+      max-width: 300px;
+      margin: auto;
+    }
+    .ball {
+      width: 60px;
+      height: 60px;
+      background: #ffcc00;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 5px;
+      font-weight: bold;
+    }
+    .timer {
+      font-size: 1.5rem;
+      color: red;
+      margin-top: 1rem;
+    }
+    .question {
+      margin-top: 1rem;
+    }
+    .task-option {
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <button class="btn" onclick="switchSection('demo')">Start Demo</button>
+  <button class="btn" onclick="switchSection('game')">Go to Game</button>
 
-  return (
-    <div className="p-4 bg-yellow-50 min-h-screen">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">🎮 French Game Show</h1>
-        <Button onClick={() => setSection(section === 'demo' ? 'game' : 'demo')}>
-          Switch to {section === 'demo' ? 'Game' : 'Demo'}
-        </Button>
-      </div>
+  <!-- DEMO SECTION -->
+  <div id="demo" class="section">
+    <h1>🎬 Demo</h1>
+    <h2>Introduction with Subtitles</h2>
+    <p>[Subtitles] "Welcome! Here's a quick guide to the game."</p>
+    <p>[Subtitles] "Each student selects a seat for a contestant."</p>
+    <p>[Subtitles] "A lucky draw decides who assigns the seat next."</p>
+    <p>[Subtitles] "Three rounds begin, followed by a poll and a rapid quiz."</p>
+    <p>[Subtitles] "The eliminated player shows their ball."</p>
+    <p>[Subtitles] "If imposter, hard task. If safe, easy task."
+    <p>[Subtitles] "Tasks are chosen by the student who picked the seat."
+    <p>[Subtitles] "Three rounds later, the survivor wins!"</p>
+  </div>
 
-      {confetti && <Confetti />}
+  <!-- GAME SECTION -->
+  <div id="game" class="section">
+    <h1>🎮 Game Time</h1>
 
-      {section === 'demo' && (
-        <div className="mt-6">
-          <h2 className="text-xl font-semibold mb-2">Demo: Audience Wheel 🎡</h2>
-          <Button onClick={spinStudent}>Spin the Wheel</Button>
-          {drawnStudent && (
-            <motion.div animate={{ scale: [1, 1.2, 1] }} className="mt-4 text-lg font-bold">
-              🎉 Lucky Draw Winner: {drawnStudent}
-            </motion.div>
-          )}
-        </div>
-      )}
+    <div>
+      <h2>🎡 Audience Wheel (Lucky Draw)</h2>
+      <div class="ball-jar" id="ballJar"></div>
+      <button class="btn" onclick="spinDraw()">Spin Lucky Draw</button>
+      <h3 id="pickedName"></h3>
+    </div>
 
-      {section === 'game' && (
-        <Tabs defaultValue="draw" className="mt-6">
-          <TabsList>
-            <TabsTrigger value="draw">🎯 Lucky Draw</TabsTrigger>
-            <TabsTrigger value="task">📋 Tasks</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="draw">
-            <Button onClick={spinStudent}>Spin the Audience Wheel</Button>
-            {drawnStudent && <p className="mt-3 text-xl font-bold">🎉 {drawnStudent}</p>}
-          </TabsContent>
-
-          <TabsContent value="task">
-            <div className="flex gap-4 mt-3">
-              <Button onClick={() => assignTask('easy')}>Easy Task</Button>
-              <Button onClick={() => assignTask('hard')}>Hard Task</Button>
-            </div>
-            {currentTask && (
-              <div className="mt-4 bg-white p-4 rounded-xl shadow-md">
-                <p><strong>EN:</strong> {currentTask.en}</p>
-                <p><strong>FR:</strong> {currentTask.fr}</p>
-              </div>
-            )}
-          </TabsContent>
-        </Tabs>
-      )}
-
-      <div className="mt-6 text-center">
-        <p className="text-sm">⏱️ Time Left: <span className="font-bold">{timer}s</span></p>
-        {timer === 0 && <p className="text-red-600 font-bold mt-2">⛔ Time's Up!</p>}
+    <div>
+      <h2>🧠 Rapid Fire (with Translation)</h2>
+      <div class="question" id="quizArea">
+        <p><strong>Q:</strong> Quelle est la couleur du ciel ? (What is the color of the sky?)</p>
+        <button class="btn">Bleu (Blue)</button>
+        <button class="btn">Rouge (Red)</button>
       </div>
     </div>
-  );
-}
+
+    <div>
+      <h2>📋 Task Selection</h2>
+      <div>
+        <h3>Is this contestant Imposter or Safe?</h3>
+        <button class="btn" onclick="assignTask('hard')">Imposter</button>
+        <button class="btn" onclick="assignTask('easy')">Safe</button>
+      </div>
+      <div id="taskDisplay" class="task-option"></div>
+    </div>
+
+    <div class="timer" id="timerDisplay">⏳ Timer: 40</div>
+  </div>
+
+  <script>
+    const students = [
+      "Fiza ghouri", "Komal", "Vaniza", "Rafey Mengal", "Kumail", "Mustafa", "Hadi",
+      "Aleeshba", "Zaeema", "Areeba", "Zahra", "Baneen", "Rohail", "Hunain", "Shayma",
+      "Muneeb", "Noman", "Sabeen", "Fatima", "Areeba", "Sana", "Alishba", "Tasbiha",
+      "Suman", "Anoosha", "Bisma", "Zaid", "Arham Nadia", "Rasheed", "Suhaira Tanveer",
+      "Parvez Ali", "Hammad Uddin", "Hamza Anwar", "Abdul moiz", "M ali", "Fazal",
+      "Wasil fadli", "Abdul Rafay Rauf", "Asjad Taha", "Aazmir Qureshi", "Umer",
+      "Touqeer Shahid", "Ammad Khan", "Anus"
+    ];
+
+    const hardTasks = [
+      "Say the tongue twister \"Trois tortues trottent\" three times.",
+      "Mime the phrase \"Je dors\".",
+      "Say two dialogues in French (original + translated)."
+    ];
+
+    const easyTasks = [
+      "Say the French word for 'red, mango, balloon'.",
+      "Name three animals in French.",
+      "Say the phrase 'Bonjour, comment ça va ?' (Hello, how are you?)",
+      "Conjugate the verb 'être' in present tense.",
+      "Name a famous French landmark.",
+      "Translate 'I love Pakistan' into French."
+    ];
+
+    function switchSection(id) {
+      document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    function renderBalls() {
+      const jar = document.getElementById('ballJar');
+      jar.innerHTML = '';
+      students.slice(0, 6).forEach(name => {
+        const ball = document.createElement('div');
+        ball.className = 'ball';
+        ball.textContent = name.split(' ')[0];
+        jar.appendChild(ball);
+      });
+    }
+
+    function spinDraw() {
+      const pick = students[Math.floor(Math.random() * students.length)];
+      document.getElementById('pickedName').textContent = `🎉 Selected: ${pick}`;
+      document.getElementById('pickedName').classList.add('confetti');
+      setTimeout(() => {
+        document.getElementById('pickedName').classList.remove('confetti');
+      }, 1000);
+    }
+
+    function assignTask(type) {
+      const pool = type === 'hard' ? hardTasks : easyTasks;
+      const index = Math.floor(Math.random() * pool.length);
+      const task = pool.splice(index, 1)[0];
+      document.getElementById('taskDisplay').textContent = `${type === 'hard' ? 'Hard' : 'Easy'} Task: ${task}`;
+    }
+
+    function startTimer() {
+      let time = 40;
+      const timer = document.getElementById('timerDisplay');
+      const interval = setInterval(() => {
+        timer.textContent = `⏳ Timer: ${time}`;
+        time--;
+        if (time < 0) {
+          clearInterval(interval);
+          timer.textContent = "⏰ Time's up!";
+        }
+      }, 1000);
+    }
+
+    // Initialize
+    renderBalls();
+    startTimer();
+  </script>
+</body>
+</html>
