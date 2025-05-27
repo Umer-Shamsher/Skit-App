@@ -1,89 +1,134 @@
-There should be two main sections. One demo, and the second one is game. 
-In the demo, You'll show a quick guide of the game. As select while contestants are introducing themselves, student's name is pinned. Then the name of the student who was name was picked on luckydraw will assign the seat to the contestant who introduced. After doing this with every student, the game starts. There will be three rounds. Then the poll will be conducted in the group for voting for 40 seconds while the rapid quiz will be played. The most and least voted person is eliminated. The person who is eliminated will show his ball. If the contestant is found to be imposter then he/she will be given a hard task, and if he's safe an easy task. The task will appear on the screen, and the person who picked the seat for that contestant will select from them, and the student has to perform them. This will go on for three rounds. The person who is not eliminated will be the winner.
-Create a visual representation with english subtitles for this demo.
-Then for the game section. It will be a connected section, with happening in the game, the task, rapid fire question, student name. They will not appear two times. The game will have two tab one for the student's lucky draw, one for task which will be further sub-divied in easy and hard.
-There should be a button to switch or change section. And it should be a auto-progress. Like discussed earlier. 
-Create a subset of the random selection. Just keep in mind that that draw will be six times.
-Two task are given as option, and removed after selection. As mentioned earlier, the users selects the button imposter or safe.
-The rapid fire should picture and the question together. In french with english translation. Two options should be given, and after that the question will be removed.
-There should be a 40-second timer connected to it, which will notify that time's up in the screen as well. 
-Keep a playful theme, with simple effects. There should be a confetti effect for the student's name lucky draw. and it should be display as the balls in the bowl or round jar. A Shuffling effect should be added when the lucky draw is spinning. And a confetti animation when the student's name is picked. The names of this luckydraw should be "Audience Wheel".
+// Import necessary libraries
+import { useState, useEffect } from 'react';
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import Confetti from 'react-confetti';
+import { motion } from 'framer-motion';
 
-Students Name:
-1. Fiza ghouri
-2. Komal
-3. Vaniza
-4. Rafey Mengal
-5. Kumail
-6. Mustafa
-7. Hadi
-8. Aleeshba 
-9. Zaeema 
-10. Areeba 
-11. Zahra 
-12. Baneen 
-13. Rohail 
-14. Hunain
-15. Shayma 
-16. Muneeb
-17. Noman
-18. Sabeen
-19. Fatima 
-20. Areeba 
-21. Sana
-22. Alishba
-23. Tasbiha
-24. Suman
-26. Anoosha
-27. Bisma
-28. Zaid
-29. Arham Nadia 
-30. Rasheed 
-31. Suhaira Tanveer 
-32. Parvez Ali
-33. Hammad Uddin
-34. Hamza Anwar
-35. Abdul moiz
-36. M ali
-37. Fazal
-38. Wasil fadli
-39. Abdul Rafay Rauf
-40. Asjad Taha  
-41. Aazmir Qureshi 
-42. Umer 
-43. Touqeer Shahid 
-44. Ammad Khan 
-45. Anus
-Hard Tasks:
-1. Tongue Twister
-Task: Say the tongue twister "Trois tortues trottent" three times. 
-French: Dis le virelangue "Trois tortues trottent" trois fois. 
-2. Dumb Charade
-Dumb Charade 
-Task: Act out the sentence "Je dors" (I am sleeping). 
-French: Mime la phrase "Je dors".
-Famous Quote 
-Task: Say any two dialogues in french. (First tell them in their original language, 
-then in french). 
-Easy Task:
-One-Word Quiz 
-Task: Say the French word for "red, mango, Balloon". 
-French: Dis le mot français pour "rouge, mangue, Ballon". 
-Vocabulary Challenge 
-Task: Name three animals in French. 
-French: Nomme trois animaux en français. 
-Pronunciation Practice 
-Task: Say the phrase "Bonjour, comment ça va ?" 
-French: Dis la phrase "Bonjour, comment ça va ?"
-(Also show the engligh translation for this phrase.)
-Word Conjugation 
-Task: Conjugate the verb "être" in the present tense. 
-French: Conjugue le verbe "être" au présent.
-Cultural Knowledge 
-Task: Name a famous French landmark. 
-French: Nomme un monument français célèbre.
-Simple Translation 
-Task: Translate "I love Pakistan" into French. 
-French: Traduis "I love Pakistan" en français.
+// Constants
+const students = [
+  "Fiza ghouri", "Komal", "Vaniza", "Rafey Mengal", "Kumail", "Mustafa", "Hadi", "Aleeshba",
+  "Zaeema", "Areeba", "Zahra", "Baneen", "Rohail", "Hunain", "Shayma", "Muneeb", "Noman",
+  "Sabeen", "Fatima", "Areeba", "Sana", "Alishba", "Tasbiha", "Suman", "Anoosha", "Bisma",
+  "Zaid", "Arham Nadia", "Rasheed", "Suhaira Tanveer", "Parvez Ali", "Hammad Uddin", "Hamza Anwar",
+  "Abdul moiz", "M ali", "Fazal", "Wasil fadli", "Abdul Rafay Rauf", "Asjad Taha", "Aazmir Qureshi",
+  "Umer", "Touqeer Shahid", "Ammad Khan", "Anus"
+];
 
-I hope every section, and detail is now cleared and structured.
+const hardTasks = [
+  { en: "Say the tongue twister 'Trois tortues trottent' three times.", fr: "Dis le virelangue 'Trois tortues trottent' trois fois." },
+  { en: "Act out the sentence 'Je dors' (I am sleeping).", fr: "Mime la phrase 'Je dors'." },
+  { en: "Say any two dialogues in French. First in original, then in French.", fr: "Dis deux répliques en français. D'abord en langue originale, puis en français." }
+];
+
+const easyTasks = [
+  { en: "Say the French word for 'red, mango, Balloon'.", fr: "Dis le mot français pour 'rouge, mangue, Ballon'." },
+  { en: "Name three animals in French.", fr: "Nomme trois animaux en français." },
+  { en: "Say the phrase 'Bonjour, comment ça va ?' (Hello, how are you?)", fr: "Dis la phrase 'Bonjour, comment ça va ?'" },
+  { en: "Conjugate the verb 'être' in the present tense.", fr: "Conjugue le verbe 'être' au présent." },
+  { en: "Name a famous French landmark.", fr: "Nomme un monument français célèbre." },
+  { en: "Translate 'I love Pakistan' into French.", fr: "Traduis 'I love Pakistan' en français." }
+];
+
+// Helper Functions
+const getRandomStudent = (usedStudents) => {
+  const available = students.filter(s => !usedStudents.includes(s));
+  return available[Math.floor(Math.random() * available.length)];
+};
+
+const getRandomTask = (type, usedTasks) => {
+  const pool = type === 'hard' ? hardTasks : easyTasks;
+  const available = pool.filter(t => !usedTasks.includes(t.en));
+  return available[Math.floor(Math.random() * available.length)];
+};
+
+export default function FrenchGameShow() {
+  const [section, setSection] = useState('demo');
+  const [usedStudents, setUsedStudents] = useState([]);
+  const [drawnStudent, setDrawnStudent] = useState(null);
+  const [confetti, setConfetti] = useState(false);
+  const [usedTasks, setUsedTasks] = useState([]);
+  const [currentTask, setCurrentTask] = useState(null);
+  const [taskType, setTaskType] = useState('easy');
+  const [timer, setTimer] = useState(40);
+
+  const spinStudent = () => {
+    const student = getRandomStudent(usedStudents);
+    setDrawnStudent(student);
+    setUsedStudents([...usedStudents, student]);
+    setConfetti(true);
+    setTimeout(() => setConfetti(false), 5000);
+  };
+
+  const assignTask = (type) => {
+    setTaskType(type);
+    const task = getRandomTask(type, usedTasks);
+    setCurrentTask(task);
+    setUsedTasks([...usedTasks, task.en]);
+  };
+
+  useEffect(() => {
+    let interval = null;
+    if (timer > 0) {
+      interval = setInterval(() => setTimer(t => t - 1), 1000);
+    }
+    return () => clearInterval(interval);
+  }, [timer]);
+
+  return (
+    <div className="p-4 bg-yellow-50 min-h-screen">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold">🎮 French Game Show</h1>
+        <Button onClick={() => setSection(section === 'demo' ? 'game' : 'demo')}>
+          Switch to {section === 'demo' ? 'Game' : 'Demo'}
+        </Button>
+      </div>
+
+      {confetti && <Confetti />}
+
+      {section === 'demo' && (
+        <div className="mt-6">
+          <h2 className="text-xl font-semibold mb-2">Demo: Audience Wheel 🎡</h2>
+          <Button onClick={spinStudent}>Spin the Wheel</Button>
+          {drawnStudent && (
+            <motion.div animate={{ scale: [1, 1.2, 1] }} className="mt-4 text-lg font-bold">
+              🎉 Lucky Draw Winner: {drawnStudent}
+            </motion.div>
+          )}
+        </div>
+      )}
+
+      {section === 'game' && (
+        <Tabs defaultValue="draw" className="mt-6">
+          <TabsList>
+            <TabsTrigger value="draw">🎯 Lucky Draw</TabsTrigger>
+            <TabsTrigger value="task">📋 Tasks</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="draw">
+            <Button onClick={spinStudent}>Spin the Audience Wheel</Button>
+            {drawnStudent && <p className="mt-3 text-xl font-bold">🎉 {drawnStudent}</p>}
+          </TabsContent>
+
+          <TabsContent value="task">
+            <div className="flex gap-4 mt-3">
+              <Button onClick={() => assignTask('easy')}>Easy Task</Button>
+              <Button onClick={() => assignTask('hard')}>Hard Task</Button>
+            </div>
+            {currentTask && (
+              <div className="mt-4 bg-white p-4 rounded-xl shadow-md">
+                <p><strong>EN:</strong> {currentTask.en}</p>
+                <p><strong>FR:</strong> {currentTask.fr}</p>
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
+      )}
+
+      <div className="mt-6 text-center">
+        <p className="text-sm">⏱️ Time Left: <span className="font-bold">{timer}s</span></p>
+        {timer === 0 && <p className="text-red-600 font-bold mt-2">⛔ Time's Up!</p>}
+      </div>
+    </div>
+  );
+}
