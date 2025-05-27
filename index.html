@@ -1,203 +1,89 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Skit Application</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 20px;
-      background-color: #f0f8ff;
-      color: #333;
-    }
-    h1, h2, h3 { color: #2e8b57; }
-    .section { display: none; margin: 20px 0; }
-    .active { display: block; }
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      cursor: pointer;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      margin: 5px;
-    }
-    button:hover { background-color: #45a049; }
-    canvas { border: 1px solid #000; background-color: #fff; border-radius: 50%; }
-    .slide { display: none; }
-    .slide.active { display: block; }
-    #quizImage { max-width: 300px; margin: 10px; }
-    #timer { font-size: 24px; color: #ff4500; }
-  </style>
-</head>
-<body>
-  <!-- Home Section -->
-  <div id="home" class="section active">
-    <h1>Skit Application</h1>
-    <button onclick="startDemo()">View Demo</button>
-    <button onclick="startGame()">Start Game</button>
-  </div>
+There should be two main sections. One demo, and the second one is game. 
+In the demo, You'll show a quick guide of the game. As select while contestants are introducing themselves, student's name is pinned. Then the name of the student who was name was picked on luckydraw will assign the seat to the contestant who introduced. After doing this with every student, the game starts. There will be three rounds. Then the poll will be conducted in the group for voting for 40 seconds while the rapid quiz will be played. The most and least voted person is eliminated. The person who is eliminated will show his ball. If the contestant is found to be imposter then he/she will be given a hard task, and if he's safe an easy task. The task will appear on the screen, and the person who picked the seat for that contestant will select from them, and the student has to perform them. This will go on for three rounds. The person who is not eliminated will be the winner.
+Create a visual representation with english subtitles for this demo.
+Then for the game section. It will be a connected section, with happening in the game, the task, rapid fire question, student name. They will not appear two times. The game will have two tab one for the student's lucky draw, one for task which will be further sub-divied in easy and hard.
+There should be a button to switch or change section. And it should be a auto-progress. Like discussed earlier. 
+Create a subset of the random selection. Just keep in mind that that draw will be six times.
+Two task are given as option, and removed after selection. As mentioned earlier, the users selects the button imposter or safe.
+The rapid fire should picture and the question together. In french with english translation. Two options should be given, and after that the question will be removed.
+There should be a 40-second timer connected to it, which will notify that time's up in the screen as well. 
+Keep a playful theme, with simple effects. There should be a confetti effect for the student's name lucky draw. and it should be display as the balls in the bowl or round jar. A Shuffling effect should be added when the lucky draw is spinning. And a confetti animation when the student's name is picked. The names of this luckydraw should be "Audience Wheel".
 
-  <!-- Demo Section -->
-  <div id="demo" class="section">
-    <h2>Game Flow Demo</h2>
-    <div id="slides">
-      <div class="slide active">
-        <h3>Step 1: Introductions</h3>
-        <p>Contestants introduce themselves.</p>
-      </div>
-      <div class="slide">
-        <h3>Step 2: Seat Assignment</h3>
-        <p>Audience Wheel picks a student.</p>
-      </div>
-      <div class="slide">
-        <h3>Step 3: Game Begins</h3>
-        <p>Three rounds with tasks and quizzes.</p>
-      </div>
-    </div>
-    <button onclick="nextSlide()">Next</button>
-    <button onclick="backToHome()">Back to Home</button>
-  </div>
+Students Name:
+1. Fiza ghouri
+2. Komal
+3. Vaniza
+4. Rafey Mengal
+5. Kumail
+6. Mustafa
+7. Hadi
+8. Aleeshba 
+9. Zaeema 
+10. Areeba 
+11. Zahra 
+12. Baneen 
+13. Rohail 
+14. Hunain
+15. Shayma 
+16. Muneeb
+17. Noman
+18. Sabeen
+19. Fatima 
+20. Areeba 
+21. Sana
+22. Alishba
+23. Tasbiha
+24. Suman
+26. Anoosha
+27. Bisma
+28. Zaid
+29. Arham Nadia 
+30. Rasheed 
+31. Suhaira Tanveer 
+32. Parvez Ali
+33. Hammad Uddin
+34. Hamza Anwar
+35. Abdul moiz
+36. M ali
+37. Fazal
+38. Wasil fadli
+39. Abdul Rafay Rauf
+40. Asjad Taha  
+41. Aazmir Qureshi 
+42. Umer 
+43. Touqeer Shahid 
+44. Ammad Khan 
+45. Anus
+Hard Tasks:
+1. Tongue Twister
+Task: Say the tongue twister "Trois tortues trottent" three times. 
+French: Dis le virelangue "Trois tortues trottent" trois fois. 
+2. Dumb Charade
+Dumb Charade 
+Task: Act out the sentence "Je dors" (I am sleeping). 
+French: Mime la phrase "Je dors".
+Famous Quote 
+Task: Say any two dialogues in french. (First tell them in their original language, 
+then in french). 
+Easy Task:
+One-Word Quiz 
+Task: Say the French word for "red, mango, Balloon". 
+French: Dis le mot français pour "rouge, mangue, Ballon". 
+Vocabulary Challenge 
+Task: Name three animals in French. 
+French: Nomme trois animaux en français. 
+Pronunciation Practice 
+Task: Say the phrase "Bonjour, comment ça va ?" 
+French: Dis la phrase "Bonjour, comment ça va ?"
+(Also show the engligh translation for this phrase.)
+Word Conjugation 
+Task: Conjugate the verb "être" in the present tense. 
+French: Conjugue le verbe "être" au présent.
+Cultural Knowledge 
+Task: Name a famous French landmark. 
+French: Nomme un monument français célèbre.
+Simple Translation 
+Task: Translate "I love Pakistan" into French. 
+French: Traduis "I love Pakistan" en français.
 
-  <!-- Game Section -->
-  <div id="game" class="section">
-    <h2>Game</h2>
-    <div id="navigation">
-      <button onclick="switchSection('audienceWheel')">Audience Wheel</button>
-      <button onclick="switchSection('taskRoulette')">Task Roulette</button>
-      <button onclick="switchSection('rapidQuiz')">Rapid Quiz</button>
-      <button onclick="backToHome()">Back to Home</button>
-    </div>
-    <div id="audienceWheel" class="section active">
-      <h3>Audience Wheel</h3>
-      <canvas id="wheelCanvas" width="300" height="300"></canvas>
-      <p id="selectedStudent"></p>
-      <button onclick="drawStudent()">Draw Student</button>
-    </div>
-    <div id="taskRoulette" class="section">
-      <h3>Task Roulette</h3>
-      <button onclick="selectTask('easy')">Easy Task</button>
-      <button onclick="selectTask('hard')">Hard Task</button>
-      <p id="taskResult"></p>
-    </div>
-    <div id="rapidQuiz" class="section">
-      <h3>Rapid Fire Quiz</h3>
-      <img id="quizImage" src="" alt="Quiz Image">
-      <p id="quizQuestion"></p>
-      <div id="quizOptions"></div>
-      <p id="timer"></p>
-    </div>
-  </div>
-
-  <script>
-    // Data
-    const students = ["Fiza", "Komal", "Vaniza", "Rafey", "Kumail", "Mustafa"];
-    const easyTasks = ["Say 'Bonjour'", "Name a French animal"];
-    const hardTasks = ["Say a tongue twister", "Act out 'I am sleeping'"];
-    const quizQuestions = [
-      { image: "images/image1.png", question: "What day is it?", answer: "lundi", options: ["lundi", "mardi"] },
-      { image: "images/image2.png", question: "What month is cold?", answer: "janvier", options: ["janvier", "juillet"] }
-    ];
-
-    // Section Management
-    function showSection(sectionId) {
-      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      document.getElementById(sectionId).classList.add('active');
-    }
-
-    // Demo Functions
-    let currentSlide = 0;
-    const slides = document.querySelectorAll('#slides .slide');
-    function startDemo() {
-      showSection('demo');
-      currentSlide = 0;
-      showSlide(currentSlide);
-    }
-    function showSlide(index) {
-      slides.forEach((slide, i) => slide.classList.toggle('active', i === index));
-    }
-    function nextSlide() {
-      currentSlide = (currentSlide + 1) % slides.length;
-      showSlide(currentSlide);
-    }
-    function backToHome() {
-      showSection('home');
-    }
-
-    // Game Functions
-    function startGame() {
-      showSection('game');
-      switchSection('audienceWheel');
-    }
-    function switchSection(sectionId) {
-      document.querySelectorAll('#game .section').forEach(s => s.classList.remove('active'));
-      document.getElementById(sectionId).classList.add('active');
-      if (sectionId === 'rapidQuiz') loadQuiz();
-    }
-
-    // Audience Wheel
-    const canvas = document.getElementById('wheelCanvas');
-    const ctx = canvas.getContext('2d');
-    let availableStudents = [...students];
-    function drawStudent() {
-      if (availableStudents.length === 0) {
-        document.getElementById('selectedStudent').innerText = "No students left!";
-        return;
-      }
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.beginPath();
-      ctx.arc(150, 150, 140, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.fillText("Spinning...", 120, 150);
-      setTimeout(() => {
-        const index = Math.floor(Math.random() * availableStudents.length);
-        const student = availableStudents.splice(index, 1)[0];
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.fillText(student, 120, 150);
-        document.getElementById('selectedStudent').innerText = `Selected: ${student}`;
-      }, 1000);
-    }
-
-    // Task Roulette
-    function selectTask(type) {
-      const tasks = type === 'easy' ? easyTasks : hardTasks;
-      const task = tasks[Math.floor(Math.random() * tasks.length)];
-      document.getElementById('taskResult').innerText = `Task: ${task}`;
-    }
-
-    // Rapid Fire Quiz
-    let currentQuiz = 0;
-    function loadQuiz() {
-      if (currentQuiz >= quizQuestions.length) {
-        document.getElementById('quizQuestion').innerText = "No more questions!";
-        return;
-      }
-      const q = quizQuestions[currentQuiz];
-      document.getElementById('quizImage').src = q.image;
-      document.getElementById('quizQuestion').innerText = q.question;
-      document.getElementById('quizOptions').innerHTML = q.options
-        .map(opt => `<button onclick="checkAnswer('${opt}', '${q.answer}')">${opt}</button>`).join('');
-      let timeLeft = 10;
-      document.getElementById('timer').innerText = `Time: ${timeLeft}s`;
-      const timer = setInterval(() => {
-        timeLeft--;
-        document.getElementById('timer').innerText = `Time: ${timeLeft}s`;
-        if (timeLeft <= 0) {
-          clearInterval(timer);
-          document.getElementById('quizOptions').innerText = `Answer: ${q.answer}`;
-          currentQuiz++;
-          setTimeout(loadQuiz, 2000);
-        }
-      }, 1000);
-    }
-    function checkAnswer(selected, correct) {
-      document.getElementById('quizOptions').innerText = selected === correct ? "Correct!" : `Wrong! Answer: ${correct}`;
-      currentQuiz++;
-      setTimeout(loadQuiz, 2000);
-    }
-  </script>
-</body>
-</html>
+I hope every section, and detail is now cleared and structured.
